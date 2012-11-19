@@ -3,9 +3,9 @@
 # ----------------------- #
 
 url: http://rickwangtw.github.com
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+title: 狂風日誌
+subtitle: 人生就是應該嚐盡酸甜苦辣
+author: Rick Wang
 simple_search: http://google.com/search
 description:
 
@@ -96,4 +96,4 @@ disqus_show_comment_count: false
 google_analytics_tracking_id:
 
 # Facebook Like
-facebook_like: false
+facebook_like: true
