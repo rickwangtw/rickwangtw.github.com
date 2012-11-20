@@ -10,9 +10,9 @@ categories: Misc
 
 每次的旅遊，每次的生活體驗，都曾經讓我想記錄一下。
 
-利用無名小站的部落格寫了去日本和關島的遊記。
+利用[無名小站](http://www.wretch.cc/)的[部落格](http://www.wretch.cc/blog/rickwangtw2)寫了去日本和關島的遊記。
 
-利用Tiddly Wiki 記錄了2012年初的玩樂:http://rickwangtw.tiddlyspace.com/
+利用以 [Tiddly Wiki](http://tiddlywiki.com/) 建構的[網頁](http://rickwangtw.tiddlyspace.com/)來記錄了2012年初的玩樂
 
 這些工具最後都因為我的三分鐘熱度，浪費了他們的潛力。
 <br />
