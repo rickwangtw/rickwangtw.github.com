@@ -5,7 +5,6 @@ date: 2012-11-25 17:16
 comments: true
 categories: [Java, Programming, Compression, Zip]
 ---
-<h2 id="overview">前言</h2>
 
 ZIP 壓縮格式於1989年由Phil Katz設計。
 
@@ -14,8 +13,13 @@ ZIP 壓縮格式於1989年由Phil Katz設計。
 
 此格式雖然壓縮率沒有RAR或是7-zip來的高，由於Winzip廣泛地被使用以及Windows ME之後系統支援，
 現在為個平台主流的壓縮格式。
+<!-- more -->
+* 目錄
+	* [檢索內容](#zipcontent)
+	* [注意事項](#notice)
+	* [參考資料](#reference)
 
-<h2 id="content">檢索內容</h2>
+<h2 id="zipcontent">檢索內容</h2>
 
 ``` java ZipTest.java: list the contents of a zip
 import java.io.IOException;
@@ -51,6 +55,11 @@ public class ZipTest {
     }
 }
 ```
+<br>
+
+<h2 id="notice">注意事項</h2>
+以下使用的java.util.zip 套件只適用於deflate的壓縮格式。
+
 <br>
 <h2 id="reference">參考資料</h2>
 
