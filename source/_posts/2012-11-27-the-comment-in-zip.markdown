@@ -53,6 +53,59 @@ ZIP 的檔案格式
 	.ZIP file comment length        2 bytes
 	.ZIP file comment       		(variable size)
 
+``` java ZipTest.java: extract the zip file comment
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+public class ZipTest {
+    public static void main(String[] args) {
+		String file = null;
+		/* use the first parameter as the input zip file */
+		if (args.length > 0)
+			file = args[0];
+
+		RandomAccessFile zipFile = null;
+		try {
+			zipFile = new RandomAccessFile(file, "r");
+
+			long fileSize = zipFile.length();
+			/* find the magic number in a reverse manner */
+			for (long i = 1 ; fileSize - i >= 0; ++i) {
+				zipFile.seek(fileSize - i);
+				byte b = zipFile.readByte();
+				if (b == 0x06) {
+					zipFile.seek(fileSize - i - 3);
+					/* check for magic "0x06054b50" in little endian */
+					byte[] key = new byte[4];
+					zipFile.readFully(key);
+					if (key[0] != 0x50 || key[1] != 0x4b || key[2] != 0x05) {
+						continue;
+					}
+					/* get the file comment size */
+					byte[] tmp = new byte[18];
+					zipFile.readFully(tmp);
+					int commentSize = (tmp[16] & 0xff) | ((tmp[17] & 0xff) >> 8);
+					if (commentSize > 0) {
+						byte[] comment = new byte[commentSize];
+						zipFile.readFully(comment);
+						System.out.println("comment: " + new String(comment));
+					}
+					break;
+				}
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			if (zipFile != null) {
+				try {
+					zipFile.close();
+				} catch (IOException ex) {
+				}
+			}
+		}
+    }
+}
+```
 
 Reference:
 http://www.pkware.com/documents/casestudies/APPNOTE.TXT
