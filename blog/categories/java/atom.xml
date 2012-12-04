@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Java | 狂風日誌]]></title>
   <link href="http://rickwangtw.github.com/blog/categories/java/atom.xml" rel="self"/>
   <link href="http://rickwangtw.github.com/"/>
-  <updated>2012-12-04T15:15:19+08:00</updated>
+  <updated>2012-12-04T17:23:36+08:00</updated>
   <id>http://rickwangtw.github.com/</id>
   <author>
     <name><![CDATA[Rick Wang]]></name>
@@ -12,6 +12,151 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Java: ZIP 壓縮檔的註解]]></title>
+    <link href="http://rickwangtw.github.com/blog/2012/12/04/the-comment-in-zip/"/>
+    <updated>2012-12-04T17:21:00+08:00</updated>
+    <id>http://rickwangtw.github.com/blog/2012/12/04/the-comment-in-zip</id>
+    <content type="html"><![CDATA[<p>Java 的"java.util.zip"套件可以輕易獲得各個內容物的註解。</p>
+
+<p>然而，整個Zip壓縮檔的註解卻無法透過此API輕易獲得。</p>
+
+<p>要攫取此檔案的註解必須要瞭解Zip檔的架構。</p>
+
+<!-- more -->
+
+
+<ul>
+<li>目錄
+
+<ul>
+<li><a href="#solution">解法</a></li>
+<li><a href="#reference">參考資料</a></li>
+</ul>
+</li>
+</ul>
+
+
+<h2 id="solution">解法</h2>
+
+
+<p>``` java ZipTest.java: extract the zip file comment
+import java.io.IOException;
+import java.io.RandomAccessFile;</p>
+
+<p>public class ZipTest {</p>
+
+<pre><code>public static void main(String[] args) {
+    String file = null;
+    /* use the first parameter as the input zip file */
+    if (args.length &gt; 0)
+        file = args[0];
+
+    RandomAccessFile zipFile = null;
+    try {
+        zipFile = new RandomAccessFile(file, "r");
+
+        long fileSize = zipFile.length();
+        /* find the magic number in a reverse manner */
+        for (long i = 1 ; fileSize - i &gt;= 0; ++i) {
+            zipFile.seek(fileSize - i);
+            byte b = zipFile.readByte();
+            if (b == 0x06) {
+                zipFile.seek(fileSize - i - 3);
+                /* check for magic "0x06054b50" in little endian */
+                byte[] key = new byte[4];
+                zipFile.readFully(key);
+                if (key[0] != 0x50 || key[1] != 0x4b || key[2] != 0x05) {
+                    continue;
+                }
+                /* get the file comment size */
+                byte[] tmp = new byte[18];
+                zipFile.readFully(tmp);
+                int commentSize = (tmp[16] &amp; 0xff) | ((tmp[17] &amp; 0xff) &gt;&gt; 8);
+                if (commentSize &gt; 0) {
+                    byte[] comment = new byte[commentSize];
+                    zipFile.readFully(comment);
+                    System.out.println("comment: " + new String(comment));
+                }
+                break;
+            }
+        }
+    } catch(Exception ex) {
+        ex.printStackTrace();
+    } finally {
+        if (zipFile != null) {
+            try {
+                zipFile.close();
+            } catch (IOException ex) {
+            }
+        }
+    }
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>ZIP檔案的註解放在EOCD記錄 (End of Central Directory Record)中。</p>
+
+<p>至於EOCD存放在哪裡，就必須稍微研究一下Zip的檔案格式。</p>
+
+<br>
+
+
+<p>ZIP 的檔案格式</p>
+
+<pre><code>[local file header 1]
+[encryption header 1]
+[file data 1]
+[data descriptor 1]
+.
+.
+.
+[local file header n]
+[encryption header n]
+[file data n]
+[data descriptor n]
+[archive decryption header]
+[archive extra data record]
+[central directory header 1]
+.
+.
+.
+[central directory header n]
+[zip64 end of central directory record]
+[zip64 end of central directory locator]
+[end of central directory record]
+</code></pre>
+
+<p>接下來我們看EOCD的結構</p>
+
+<pre><code>end of central dir signature    4 bytes  (0x06054b50)
+number of this disk             2 bytes
+number of the disk with the
+start of the central directory  2 bytes
+total number of entries in the
+central directory on this disk  2 bytes
+total number of entries in
+the central directory           2 bytes
+size of the central directory   4 bytes
+offset of start of central
+directory with respect to
+the starting disk number        4 bytes
+.ZIP file comment length        2 bytes
+.ZIP file comment               (variable size)
+</code></pre>
+
+<p>由以上資料我們可以知道，只要有辦法找到 "end of central dir signature"，我們就有辦法知道Zip註解的長度以及內容。
+以上的解法就是從檔案尾端一個byte一個byte讀取，直到找個 "0x0605450" 這個 magic number。</p>
+
+<h2 id="reference">參考資料</h2>
+
+
+<p><a href="http://www.pkware.com/documents/casestudies/APPNOTE.TXT">PKWARE</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Java: ZIP 壓縮檔的探索]]></title>
