@@ -15,11 +15,11 @@ ZIP 壓縮格式於1989年由Phil Katz設計。
 現在為個平台主流的壓縮格式。
 <!-- more -->
 * 目錄
-	* [檢索內容](#zipcontent)
+	* [解法](#solution)
 	* [注意事項](#notice)
 	* [參考資料](#reference)
 
-<h2 id="zipcontent">檢索內容</h2>
+<h2 id="solution">解法</h2>
 
 ``` java ZipTest.java: list the contents of a zip
 import java.io.IOException;
@@ -55,6 +55,9 @@ public class ZipTest {
     }
 }
 ```
+ZipFile 類別是用來讀取每個壓縮項目的(ZipEntry)，而透過entries()這個方法可以獲得所有項目的列舉(enumeration)。
+
+透過ZipEntry的列舉，我們可以利用ZipEntry的getName()方法來列出Zip壓縮檔裡面的內容物。
 <br>
 
 <h2 id="notice">注意事項</h2>
@@ -66,3 +69,5 @@ public class ZipTest {
 [Wikipedia](http://en.wikipedia.org/wiki/Zip_\(file_format\))
 
 [Javadb.com](http://www.javadb.com/how-to-list-the-contents-of-a-zip-file)
+
+[docs.oracle.com](http://docs.oracle.com/javase/1.4.2/docs/api/java/util/zip/package-summary.html)
