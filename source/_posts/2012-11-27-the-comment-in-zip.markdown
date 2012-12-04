@@ -11,47 +11,11 @@ Java 的"java.util.zip"套件可以輕易獲得各個內容物的註解。
 
 要攫取此檔案的註解必須要瞭解Zip檔的架構。
 <!-- more -->
+* 目錄
+	* [解法](#solution)
+	* [參考資料](#reference)
 
-ZIP檔案的註解放在EOCD記錄 (End of Central Directory Record)中。
-
-ZIP 的檔案格式
-	[local file header 1]
-	[encryption header 1]
-	[file data 1]
-	[data descriptor 1]
-	. 
-	.
-	.
-	[local file header n]
-	[encryption header n]
-	[file data n]
-	[data descriptor n]
-	[archive decryption header] 
-	[archive extra data record] 
-	[central directory header 1]
-	.
-	.
-	.
-	[central directory header n]
-	[zip64 end of central directory record]
-	[zip64 end of central directory locator] 
-	[end of central directory record]
-
-接下來我們看EOCD的結構
-	end of central dir signature    4 bytes  (0x06054b50)
-	number of this disk             2 bytes
-	number of the disk with the
-	start of the central directory  2 bytes
-	total number of entries in the
-	central directory on this disk  2 bytes
-	total number of entries in
-	the central directory           2 bytes
-	size of the central directory   4 bytes
-	offset of start of central
-	directory with respect to
-	the starting disk number        4 bytes
-	.ZIP file comment length        2 bytes
-	.ZIP file comment       		(variable size)
+<h2 id="solution">解法</h2>
 
 ``` java ZipTest.java: extract the zip file comment
 import java.io.IOException;
@@ -107,5 +71,53 @@ public class ZipTest {
 }
 ```
 
-Reference:
-http://www.pkware.com/documents/casestudies/APPNOTE.TXT
+ZIP檔案的註解放在EOCD記錄 (End of Central Directory Record)中。
+
+至於EOCD存放在哪裡，就必須稍微研究一下Zip的檔案格式。
+<br>
+
+ZIP 的檔案格式
+	[local file header 1]
+	[encryption header 1]
+	[file data 1]
+	[data descriptor 1]
+	.
+	.
+	.
+	[local file header n]
+	[encryption header n]
+	[file data n]
+	[data descriptor n]
+	[archive decryption header]
+	[archive extra data record]
+	[central directory header 1]
+	.
+	.
+	.
+	[central directory header n]
+	[zip64 end of central directory record]
+	[zip64 end of central directory locator]
+	[end of central directory record]
+
+接下來我們看EOCD的結構
+	end of central dir signature    4 bytes  (0x06054b50)
+	number of this disk             2 bytes
+	number of the disk with the
+	start of the central directory  2 bytes
+	total number of entries in the
+	central directory on this disk  2 bytes
+	total number of entries in
+	the central directory           2 bytes
+	size of the central directory   4 bytes
+	offset of start of central
+	directory with respect to
+	the starting disk number        4 bytes
+	.ZIP file comment length        2 bytes
+	.ZIP file comment       		(variable size)
+
+由以上資料我們可以知道，只要有辦法找到 "end of central dir signature"，我們就有辦法知道Zip註解的長度以及內容。
+以上的解法就是從檔案尾端一個byte一個byte讀取，直到找個 "0x0605450" 這個 magic number。
+
+
+<h2 id="reference">參考資料</h2>
+[PKWARE](http://www.pkware.com/documents/casestudies/APPNOTE.TXT)
