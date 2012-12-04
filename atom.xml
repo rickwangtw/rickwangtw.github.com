@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[狂風日誌]]></title>
+  <link href="http://rickwangtw.github.com/atom.xml" rel="self"/>
+  <link href="http://rickwangtw.github.com/"/>
+  <updated>2012-12-04T15:15:19+08:00</updated>
+  <id>http://rickwangtw.github.com/</id>
+  <author>
+    <name><![CDATA[Rick Wang]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Java: ZIP 壓縮檔的探索]]></title>
+    <link href="http://rickwangtw.github.com/blog/2012/12/04/explore-zip-in-java/"/>
+    <updated>2012-12-04T14:58:00+08:00</updated>
+    <id>http://rickwangtw.github.com/blog/2012/12/04/explore-zip-in-java</id>
+    <content type="html"><![CDATA[<p>ZIP 壓縮格式於1989年由Phil Katz設計。</p>
+
+<p>支援的壓縮方式多元，包含未經壓縮的stored，最常用的<a href="http://en.wikipedia.org/wiki/DEFLATE">deflate</a>，
+7z使用的<a href="http://en.wikipedia.org/wiki/LZMA">lzma</a>等。</p>
+
+<p>此格式雖然壓縮率沒有RAR或是7-zip來的高，由於Winzip廣泛地被使用以及Windows ME之後系統支援，
+現在為個平台主流的壓縮格式。</p>
+
+<!-- more -->
+
+
+<ul>
+<li>目錄
+
+<ul>
+<li><a href="#solution">解法</a></li>
+<li><a href="#notice">注意事項</a></li>
+<li><a href="#reference">參考資料</a></li>
+</ul>
+</li>
+</ul>
+
+
+<h2 id="solution">解法</h2>
+
+
+
+
+<figure class='code'><figcaption><span>ZipTest.java: list the contents of a zip</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.util.Enumeration</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.util.zip.ZipEntry</span><span class="o">;</span>
+</span><span class='line'><span class="kn">import</span> <span class="nn">java.util.zip.ZipFile</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ZipTest</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">list</span><span class="o">(</span><span class="n">String</span> <span class="n">file</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>          <span class="cm">/* the default file is test.zip */</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">file</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>              <span class="n">file</span> <span class="o">=</span> <span class="s">&quot;test.zip&quot;</span><span class="o">;</span>
+</span><span class='line'>          <span class="o">}</span>
+</span><span class='line'>            <span class="n">ZipFile</span> <span class="n">zipFile</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ZipFile</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">Enumeration</span> <span class="n">zipEntries</span> <span class="o">=</span> <span class="n">zipFile</span><span class="o">.</span><span class="na">entries</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">while</span> <span class="o">(</span><span class="n">zipEntries</span><span class="o">.</span><span class="na">hasMoreElements</span><span class="o">())</span>
+</span><span class='line'>                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(((</span><span class="n">ZipEntry</span><span class="o">)</span><span class="n">zipEntries</span><span class="o">.</span><span class="na">nextElement</span><span class="o">()).</span><span class="na">getName</span><span class="o">());</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">ex</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">ex</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">String</span> <span class="n">file</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>      <span class="cm">/* use the first parameter as the input zip file */</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">args</span><span class="o">.</span><span class="na">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span>
+</span><span class='line'>          <span class="n">file</span> <span class="o">=</span> <span class="n">args</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+</span><span class='line'>        <span class="k">new</span> <span class="nf">ZipTest</span><span class="o">().</span><span class="na">list</span><span class="o">(</span><span class="n">file</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ZipFile 類別是用來讀取每個壓縮項目的(ZipEntry)，而透過entries()這個方法可以獲得所有項目的列舉(enumeration)。</p>
+
+<p>透過ZipEntry的列舉，我們可以利用ZipEntry的getName()方法來列出Zip壓縮檔裡面的內容物。</p>
+
+<br>
+
+
+
+
+<h2 id="notice">注意事項</h2>
+
+
+<p>以下使用的java.util.zip 套件只適用於deflate的壓縮格式。</p>
+
+<br>
+
+
+<h2 id="reference">參考資料</h2>
+
+
+<p><a href="http://en.wikipedia.org/wiki/Zip_(file_format)">Wikipedia</a></p>
+
+<p><a href="http://www.javadb.com/how-to-list-the-contents-of-a-zip-file">Javadb.com</a></p>
+
+<p><a href="http://docs.oracle.com/javase/1.4.2/docs/api/java/util/zip/package-summary.html">docs.oracle.com</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[新的一步]]></title>
+    <link href="http://rickwangtw.github.com/blog/2012/11/20/new-step/"/>
+    <updated>2012-11-20T11:45:00+08:00</updated>
+    <id>http://rickwangtw.github.com/blog/2012/11/20/new-step</id>
+    <content type="html"><![CDATA[<p>我是個三分鐘熱度的人。</p>
+
+<!-- more -->
+
+
+<p>每次的旅遊，每次的生活體驗，都曾經讓我想記錄一下。</p>
+
+<p>大四的時候利用了<a href="http://www.wretch.cc/">無名小站</a>的<a href="http://www.wretch.cc/blog/rickwangtw2">部落格</a>寫了去日本和關島的遊記。</p>
+
+<p>那時候在興頭上，還寫了一些心情小品、讀書心得。沒有寫多久，不管是因為忙碌還是懶了，最後就這樣停擺了。</p>
+
+<p>2012年初四處遊玩的時候也曾經利用以 <a href="http://tiddlywiki.com/">Tiddly Wiki</a> 建構的<a href="http://rickwangtw.tiddlyspace.com/">網頁</a>來記錄。</p>
+
+<p>新年過完，又懶了。再加上工具語法沒那麼熟悉，更懶了。</p>
+
+<p>這些工具最後都因為我的三分鐘熱度，浪費了他們的潛力。</p>
+
+<p>這次去泰國，撰寫部落格的心再起，不過這次的計劃更大，我想把生活的點滴記錄起來。</p>
+
+<p>如果沒有記下來，沒多久可能連照片是為什麼拍的都不記得了。</p>
+
+<p>一些想法、讀書心得、工作的研究等都想一起寫下來。</p>
+
+<p>似乎每次遊樂之後，都會產生這樣的衝動。</p>
+
+<p>然而，我相信這次會不一樣。</p>
+
+<br />
+
+
+<p>人的一生總該有些東西必須記錄吧？</p>
+
+<p>當兵可是我最努力記錄人生旅程的標竿。</p>
+
+<p>那時候，我逼迫自己，每天寫日記，不論多晚。</p>
+
+<p>退伍後，有一次翻開了那本日記，裡面充滿了我的小小回憶，不全然美麗，但是值得回味。</p>
+
+<p>有好多的鬼點子，我認為很有趣。如果沒有及時記錄下來，可能一下子就遺忘了。</p>
+
+<p>看了電影受到的一些感動和衝擊，不記錄下來，下次看可能也不會再感受到了。</p>
+
+<br />
+
+
+<p>工具愈來愈先進，人生卻不見得愈來愈美好。</p>
+
+<p>這個一小步，是宣誓。</p>
+
+<p>我要更認真地品嘗人生。</p>
+
+<p>唯有記錄。</p>
+
+<br />
+
+]]></content>
+  </entry>
+  
+</feed>
